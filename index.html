@@ -14,6 +14,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #1a202c;
             touch-action: manipulation;
+            user-select: none;
         }
         /* Gradient background matching Maybank M2U style */
         .bg-banking-gradient {
@@ -31,8 +32,8 @@
 </head>
 <body class="flex justify-center items-center min-h-screen sm:py-6">
 
-    <!-- Mobile Frame Container -->
-    <div class="w-full max-w-md h-screen sm:h-[844px] bg-banking-gradient relative flex flex-col justify-between overflow-hidden sm:rounded-[36px] shadow-2xl border-gray-300">
+    <!-- Mobile Frame Container (Double tap triggers Edit Modal) -->
+    <div id="appContainer" class="w-full max-w-md h-screen sm:h-[844px] bg-banking-gradient relative flex flex-col justify-between overflow-hidden sm:rounded-[36px] shadow-2xl border-gray-300">
         
         <!-- Top Main Scrollable Content Area -->
         <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
@@ -67,7 +68,6 @@
                 </button>
             </div>
 
-            <!-- Rekening Header & Balance Area -->
             <div class="px-6 pt-6 pb-4 text-center relative">
                 <h2 class="text-sm font-semibold tracking-wider text-gray-800 uppercase">REKENING</h2>
                 
@@ -80,7 +80,7 @@
                 <!-- IDR Balance Display -->
                 <div class="mt-2 min-h-[44px] flex items-center justify-center">
                     <h1 id="balanceDisplay" class="text-3xl font-light tracking-wide text-gray-900">
-                        IDR 4.321.200.00
+                        IDR 0.00
                     </h1>
                 </div>
 
@@ -101,33 +101,68 @@
                 </div>
             </div>
 
-            <!-- Account Details Card Section -->
             <div class="mt-2 border-t border-b border-gray-300/70 py-3.5 px-5 flex items-center justify-between bg-white/10 backdrop-blur-xs">
                 <div>
                     <h3 class="text-sm font-medium text-gray-900">Tabungan Payroll IB</h3>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                        <span class="text-xs text-gray-600 font-normal">8721113849</span>
-                        <button onclick="copyToClipboard('8721113849')" class="text-gray-500 hover:text-gray-800 transition-colors p-0.5" title="Salin No Rekening">
+                        <span id="accountNumDisplay" class="text-xs text-gray-600 font-normal">8721113849</span>
+                        <button onclick="copyAccountNo()" class="text-gray-500 hover:text-gray-800 transition-colors p-0.5" title="Salin No Rekening">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <span class="account-balance text-sm text-gray-900 font-normal">IDR 4.321.200.00</span>
+                    <span id="cardBalanceDisplay" class="account-balance text-sm text-gray-900 font-normal">IDR 0.00</span>
                     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
                 </div>
             </div>
 
+            <!-- Double Tap Hint Banner -->
+            
         </div>
 
         <!-- Toast Notification for Copy Action -->
-        <div id="toast" class="absolute top-16 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+        <div id="toast" class="absolute top-16 left-1/2 -translate-x-1/2 bg-gray-800/90 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
             <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-green-400"></i>
-            <span>Nomor rekening berhasil disalin!</span>
+            <span id="toastMsg">Nomor rekening berhasil disalin!</span>
         </div>
 
-        <!-- Fixed Bottom Navigation Bar -->
+        <div id="editModal" class="absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+            <div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl transform scale-95 transition-all duration-300" id="editModalCard">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
+                    <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-4 h-4 text-amber-500"></i>
+                        Edit Data Rekening
+                    </h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Nominal Saldo (cth: IDR 0.00)</label>
+                        <input type="text" id="inputSaldo" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Nomor Rekening</label>
+                        <input type="text" id="inputAccountNum" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mt-6">
+                    <button onclick="closeModal()" class="flex-1 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        Batal
+                    </button>
+                    <button onclick="saveData()" class="flex-1 py-2 text-xs font-semibold text-gray-900 bg-amber-400 rounded-lg hover:bg-amber-500 transition-colors shadow-sm">
+                        Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="absolute bottom-0 left-0 right-0 bg-gray-100/95 backdrop-blur-md border-t border-gray-300/80 px-2 py-2 flex justify-around items-center z-10">
             <!-- Nav Item 1: Rekening (Active) -->
             <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center justify-center flex-1 py-1 text-sky-600 transition-colors">
@@ -167,42 +202,51 @@
         lucide.createIcons();
 
         let isSaldoVisible = true;
-        const mainBalanceText = "IDR 4.321.200.00";
+        let currentBalance = "IDR 0.00";
+        let currentAccountNum = "8721113849";
         const hiddenBalanceText = "IDR ••••••••";
 
         // Toggle Balance Visibility
         function toggleSaldo() {
             isSaldoVisible = !isSaldoVisible;
+            updateBalanceUI();
+        }
+
+        function updateBalanceUI() {
             const balanceDisplay = document.getElementById('balanceDisplay');
             const saldoText = document.getElementById('saldoText');
             const eyeIcon = document.getElementById('eyeIcon');
-            const accountBalances = document.querySelectorAll('.account-balance');
+            const cardBalanceDisplay = document.getElementById('cardBalanceDisplay');
 
             if (isSaldoVisible) {
-                balanceDisplay.textContent = mainBalanceText;
+                balanceDisplay.textContent = currentBalance;
+                cardBalanceDisplay.textContent = currentBalance;
                 saldoText.textContent = "Sembunyikan Saldo";
                 eyeIcon.setAttribute('data-lucide', 'eye');
-                accountBalances.forEach(el => el.textContent = mainBalanceText);
             } else {
                 balanceDisplay.textContent = hiddenBalanceText;
+                cardBalanceDisplay.textContent = hiddenBalanceText;
                 saldoText.textContent = "Tampilkan Saldo";
                 eyeIcon.setAttribute('data-lucide', 'eye-off');
-                accountBalances.forEach(el => el.textContent = hiddenBalanceText);
             }
             lucide.createIcons();
         }
 
         // Copy Account Number
-        function copyToClipboard(text) {
+        function copyAccountNo() {
             const textarea = document.createElement('textarea');
-            textarea.value = text;
+            textarea.value = currentAccountNum;
             document.body.appendChild(textarea);
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
 
-            // Show Toast Notification
+            showToast("Nomor rekening berhasil disalin!");
+        }
+
+        function showToast(message) {
             const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = message;
             toast.classList.remove('opacity-0', 'pointer-events-none');
             toast.classList.add('opacity-100');
 
@@ -223,6 +267,66 @@
             selectedBtn.classList.remove('text-gray-700');
             selectedBtn.classList.add('text-sky-600');
         }
+
+        // Modal Functionality for Editing Data
+        function openEditModal() {
+            document.getElementById('inputSaldo').value = currentBalance;
+            document.getElementById('inputAccountNum').value = currentAccountNum;
+            
+            const modal = document.getElementById('editModal');
+            const modalCard = document.getElementById('editModalCard');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalCard.classList.remove('scale-95');
+            modalCard.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('editModal');
+            const modalCard = document.getElementById('editModalCard');
+            modalCard.classList.remove('scale-100');
+            modalCard.classList.add('scale-95');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function saveData() {
+            const inputSaldo = document.getElementById('inputSaldo').value.trim();
+            const inputAccountNum = document.getElementById('inputAccountNum').value.trim();
+
+            if (inputSaldo) currentBalance = inputSaldo;
+            if (inputAccountNum) {
+                currentAccountNum = inputAccountNum;
+                document.getElementById('accountNumDisplay').textContent = currentAccountNum;
+            }
+
+            updateBalanceUI();
+            closeModal();
+            showToast("Data rekening berhasil diperbarui!");
+        }
+
+        // Double Tap / Double Click Detection Implementation
+        const appContainer = document.getElementById('appContainer');
+
+        // 1. Double Click for Desktop
+        appContainer.addEventListener('dblclick', function(e) {
+            // Prevent opening modal when clicking on interactive buttons or inputs directly
+            if (e.target.closest('button') || e.target.closest('input')) return;
+            openEditModal();
+        });
+
+        // 2. Touch Double Tap for Mobile Devices
+        let lastTap = 0;
+        appContainer.addEventListener('touchend', function(e) {
+            if (e.target.closest('button') || e.target.closest('input')) return;
+            
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            if (tapLength < 300 && tapLength > 0) {
+                e.preventDefault();
+                openEditModal();
+            }
+            lastTap = currentTime;
+        });
     </script>
 </body>
 </html>
