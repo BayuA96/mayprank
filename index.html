@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Banking UI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            touch-action: manipulation;
+        }
+        /* Gradient background matching Maybank M2U style */
+        .bg-banking-gradient {
+            background: linear-gradient(180deg, #b8c8d4 0%, #d5e1ea 40%, #e2e8ed 100%);
+        }
+        /* Custom scrollbar hiding for smooth look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen sm:py-6">
+
+    <!-- Mobile Frame Container -->
+    <div class="w-full max-w-md h-screen sm:h-[844px] bg-banking-gradient relative flex flex-col justify-between overflow-hidden sm:rounded-[36px] shadow-2xl border-gray-300">
+        
+        <!-- Top Main Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
+            
+            <!-- Top Header Bar -->
+            <div class="px-4 pt-4 pb-2 flex items-center justify-between gap-3">
+                <!-- Hamburger Menu -->
+                <button class="p-1.5 text-gray-700 hover:text-black transition-colors focus:outline-none" aria-label="Menu">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="15" y2="12"></line>
+                        <line x1="3" y1="18" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                <!-- Search Input Bar -->
+                <div class="flex-1 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-500"></i>
+                    </div>
+                    <input type="text" placeholder="Cari ..." 
+                           class="w-full pl-9 pr-4 py-2 bg-white/40 border border-gray-300/60 rounded-xl text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:bg-white/60 focus:border-gray-400 transition-all">
+                </div>
+
+                <!-- My Portfolio 360 Badge -->
+                <button class="flex flex-col items-center justify-center text-gray-800 hover:opacity-80 transition-opacity">
+                    <div class="w-8 h-8 rounded-full border-[1.8px] border-gray-800 flex items-center justify-center font-bold text-[10px] relative">
+                        360
+                        <i data-lucide="arrow-right" class="w-2.5 h-2.5 absolute -right-0.5 top-0.5 text-gray-800 stroke-[2.5]"></i>
+                    </div>
+                    <span class="text-[9px] font-semibold tracking-wider mt-0.5 text-gray-800">MY PORTFOLIO</span>
+                </button>
+            </div>
+
+            <!-- Rekening Header & Balance Area -->
+            <div class="px-6 pt-6 pb-4 text-center relative">
+                <h2 class="text-sm font-semibold tracking-wider text-gray-800 uppercase">REKENING</h2>
+                
+                <!-- Sembunyikan Saldo Toggle Button -->
+                <button id="toggleSaldoBtn" onclick="toggleSaldo()" class="inline-flex items-center gap-1.5 text-xs text-gray-600 mt-2 font-medium hover:text-gray-900 transition-colors">
+                    <span id="saldoText">Sembunyikan Saldo</span>
+                    <i id="eyeIcon" data-lucide="eye" class="w-3.5 h-3.5 text-gray-600"></i>
+                </button>
+
+                <!-- IDR Balance Display -->
+                <div class="mt-2 min-h-[44px] flex items-center justify-center">
+                    <h1 id="balanceDisplay" class="text-3xl font-light tracking-wide text-gray-900">
+                        IDR 4.321.200.00
+                    </h1>
+                </div>
+
+                <!-- Floating Plus Button (FAB) -->
+                <div class="absolute right-6 top-20">
+                    <button class="w-11 h-11 bg-amber-400 hover:bg-amber-500 text-gray-900 rounded-full shadow-lg flex items-center justify-center transition-transform active:scale-95">
+                        <i data-lucide="plus" class="w-6 h-6 stroke-[2.5]"></i>
+                    </button>
+                </div>
+
+                <!-- Carousel Dots Indicator -->
+                <div class="flex justify-center items-center gap-2.5 mt-6">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block ring-2 ring-amber-400/40"></span>
+                    <span class="w-2 h-2 rounded-full border border-gray-500 bg-transparent inline-block"></span>
+                    <span class="w-2 h-2 rounded-full border border-gray-500 bg-transparent inline-block"></span>
+                    <span class="w-2 h-2 rounded-full border border-gray-500 bg-transparent inline-block"></span>
+                    <span class="w-2 h-2 rounded-full border border-gray-500 bg-transparent inline-block"></span>
+                </div>
+            </div>
+
+            <!-- Account Details Card Section -->
+            <div class="mt-2 border-t border-b border-gray-300/70 py-3.5 px-5 flex items-center justify-between bg-white/10 backdrop-blur-xs">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-900">Tabungan Payroll IB</h3>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="text-xs text-gray-600 font-normal">8721113849</span>
+                        <button onclick="copyToClipboard('8721113849')" class="text-gray-500 hover:text-gray-800 transition-colors p-0.5" title="Salin No Rekening">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="account-balance text-sm text-gray-900 font-normal">IDR 4.321.200.00</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Toast Notification for Copy Action -->
+        <div id="toast" class="absolute top-16 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-green-400"></i>
+            <span>Nomor rekening berhasil disalin!</span>
+        </div>
+
+        <!-- Fixed Bottom Navigation Bar -->
+        <div class="absolute bottom-0 left-0 right-0 bg-gray-100/95 backdrop-blur-md border-t border-gray-300/80 px-2 py-2 flex justify-around items-center z-10">
+            <!-- Nav Item 1: Rekening (Active) -->
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center justify-center flex-1 py-1 text-sky-600 transition-colors">
+                <span class="text-lg font-bold leading-none mb-1">Rp</span>
+                <span class="text-[10px] font-semibold tracking-tight">REKENING</span>
+            </button>
+
+            <!-- Nav Item 2: Pembayaran -->
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center justify-center flex-1 py-1 text-gray-700 hover:text-sky-600 transition-colors">
+                <i data-lucide="file-text" class="w-5 h-5 mb-0.5 stroke-[1.8]"></i>
+                <span class="text-[10px] font-semibold tracking-tight">PEMBAYARAN</span>
+            </button>
+
+            <!-- Nav Item 3: Transfer -->
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center justify-center flex-1 py-1 text-gray-700 hover:text-sky-600 transition-colors">
+                <i data-lucide="arrow-left-right" class="w-5 h-5 mb-0.5 stroke-[1.8]"></i>
+                <span class="text-[10px] font-semibold tracking-tight">TRANSFER</span>
+            </button>
+
+            <!-- Nav Item 4: Pembelian -->
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center justify-center flex-1 py-1 text-gray-700 hover:text-sky-600 transition-colors">
+                <i data-lucide="smartphone" class="w-5 h-5 mb-0.5 stroke-[1.8]"></i>
+                <span class="text-[10px] font-semibold tracking-tight">PEMBELIAN</span>
+            </button>
+
+            <!-- Nav Item 5: Scan QR -->
+            <button onclick="setActiveNav(this)" class="nav-item flex flex-col items-center justify-center flex-1 py-1 text-gray-700 hover:text-sky-600 transition-colors">
+                <i data-lucide="qr-code" class="w-5 h-5 mb-0.5 stroke-[1.8]"></i>
+                <span class="text-[10px] font-semibold tracking-tight">SCAN QR</span>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        let isSaldoVisible = true;
+        const mainBalanceText = "IDR 4.321.200.00";
+        const hiddenBalanceText = "IDR ••••••••";
+
+        // Toggle Balance Visibility
+        function toggleSaldo() {
+            isSaldoVisible = !isSaldoVisible;
+            const balanceDisplay = document.getElementById('balanceDisplay');
+            const saldoText = document.getElementById('saldoText');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const accountBalances = document.querySelectorAll('.account-balance');
+
+            if (isSaldoVisible) {
+                balanceDisplay.textContent = mainBalanceText;
+                saldoText.textContent = "Sembunyikan Saldo";
+                eyeIcon.setAttribute('data-lucide', 'eye');
+                accountBalances.forEach(el => el.textContent = mainBalanceText);
+            } else {
+                balanceDisplay.textContent = hiddenBalanceText;
+                saldoText.textContent = "Tampilkan Saldo";
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+                accountBalances.forEach(el => el.textContent = hiddenBalanceText);
+            }
+            lucide.createIcons();
+        }
+
+        // Copy Account Number
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            // Show Toast Notification
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+
+        // Active Bottom Navigation Switcher
+        function setActiveNav(selectedBtn) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('text-sky-600');
+                item.classList.add('text-gray-700');
+            });
+
+            selectedBtn.classList.remove('text-gray-700');
+            selectedBtn.classList.add('text-sky-600');
+        }
+    </script>
+</body>
+</html>
